@@ -1,40 +1,36 @@
-# Password Generator
+# Pyword
 
-This is a simple password generator written in Python. It allows you to generate strong passwords of varying lengths and complexity.
+Python password generator utilities for secure password creation.
+
+## Features
+- Generate secure random passwords with customizable length
+- Password strength evaluation
+- Support for different character sets (letters, numbers, symbols)
+- CLI/GUI programmatic interfaces
 
 ## Installation
-
-1. Clone the repository:
-    ```sh
-    git clone https://github.com/yourusername/password-generator.git
-    cd password-generator
-    ```
-
-2. Create and activate a virtual environment:
-    ```sh
-    python3 -m venv venv
-    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-    ```
-
-3. Install the dependencies:
-    ```sh
-    pip install -r requirements.txt
-    ```
+```bash
+pip install -r requirements.txt
+```
 
 ## Usage
+```python
+from generator.password_generator import generate_password
 
-Run the main script to generate a password:
-```sh
-python main.py
+# Generate a 12-character password with letters, numbers, and symbols
+password = generate_password(length=12, use_letters=True, use_numbers=True, use_symbols=True)
+print(password)
 ```
 
-## Testing
-
-Run the tests using `unittest`:
-```sh
-python -m unittest discover tests
+## CLI Usage
+```bash
+python main.py --length 15 --numbers --symbols
 ```
 
-## License
+## GUI Usage
+```bash
+python app.py
+```
 
-This project is licensed under the MIT License.
+## Contributing
+Pull requests are welcome. Please open an issue first to discuss changes.

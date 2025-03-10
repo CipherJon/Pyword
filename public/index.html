@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pyword Password Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&amp;display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Roboto', Arial, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f0f2f5;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h1 {
+            color: #1a73e8;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #5f6368;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .password-output {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+            word-break: break-all;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.25rem 0;
+        }
+
+        .strength-indicator {
+            margin: 1rem 0;
+            padding: 0.5rem;
+            text-align: center;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .strength-weak {
+            background-color: #ffd7d5;
+            color: #c60000;
+        }
+
+        .strength-moderate {
+            background-color: #fff4d5;
+            color: #d67f00;
+        }
+
+        .strength-strong {
+            background-color: #d5ffd6;
+            color: #00a000;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        button {
+            padding: 0.8rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        #generateBtn {
+            background: #34a853;
+            color: white;
+        }
+
+        #copyBtn {
+            background: #1a73e8;
+            color: white;
+        }
+
+        #resetBtn {
+            background: #5f6368;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pyword Password Generator</h1>
+        
+        <div class="input-group">
+            <label for="length">Password Length (8-64)</label>
+            <input type="number" id="length" min="8" max="64" value="12">
+        </div>
+
+        <div class="input-group">
+            <label>Character Sets:</label>
+            <div class="checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="useUpper" checked> Uppercase (A-Z)
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="useLower" checked> Lowercase (a-z)
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="useDigits" checked> Digits (0-9)
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="useSpecial"> Special Characters (!@#$%)
+                </label>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button id="generateBtn" onclick="generatePassword()">Generate</button>
+            <button id="copyBtn" onclick="copyPassword()">Copy</button>
+            <button id="resetBtn" onclick="resetForm()">Reset</button>
+        </div>
+
+        <div class="password-output" id="passwordOutput"></div>
+        <div class="strength-indicator" id="strengthIndicator"></div>
+    </div>
+
+    <script>
+        async function generatePassword() {
+            const length = document.getElementById('length').value;
+            const output = document.getElementById('passwordOutput');
+            const useUpper = document.getElementById('useUpper').checked;
+            const useLower = document.getElementById('useLower').checked;
+            const useDigits = document.getElementById('useDigits').checked;
+            const useSpecial = document.getElementById('useSpecial').checked;
+            const strengthIndicator = document.getElementById('strengthIndicator');
+            
+            try {
+                const params = new URLSearchParams({
+                    length: length,
+                    use_upper: useUpper,
+                    use_lower: useLower,
+                    use_digits: useDigits,
+                    use_special: useSpecial
+                });
+
+                const response = await fetch(`/generate?${params}`);
+                const data = await response.json();
+                
+                if (data.error) {
+                    alert(`Error: ${data.error}`);
+                    return;
+                }
+                
+                output.textContent = data.password;
+                strengthIndicator.textContent = `Strength: ${data.strength}`;
+                strengthIndicator.className = `strength-indicator strength-${data.strength.toLowerCase()}`;
+            } catch (error) {
+                alert('Failed to generate password. Please try again.');
+            }
+        }
+
+        function copyPassword() {
+            const output = document.getElementById('passwordOutput');
+            if (!output.textContent) {
+                alert('No password to copy!');
+                return;
+            }
+
+            navigator.clipboard.writeText(output.textContent)
+                .then(() => alert('Password copied to clipboard!'))
+                .catch(() => alert('Failed to copy password'));
+        }
+
+        function resetForm() {
+            document.getElementById('length').value = 12;
+            document.getElementById('passwordOutput').textContent = '';
+        }
+    </script>
+</body>
+</html>
